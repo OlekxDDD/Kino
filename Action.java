@@ -6,13 +6,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 public class Action {
     static List<Movie> movies = new ArrayList<>();  //declare List of objects Movie
     static Scanner scanner = new Scanner(System.in);    //create object Scanner
     static String moviesSrc = "src/movies.txt";
     static String ticketsSrc = "src/tickets.txt";
-
     public static void WhatDo() throws IOException {
         System.out.println();
         System.out.println("What do you want to do");   //write instructors to user
@@ -39,8 +37,10 @@ public class Action {
             Action.listOfTicket();      //go to function listOfTicket
         }else if(choice == 7){
             Action.exit();             //go to Object ExitStart to function exit()
+        }else{
+            System.out.println("you write wrong number");
+            Action.WhatDo();
         }
-        //TODO : dziwne wyniki jezeli podam wynik bez pokrcia np. -1 , 12
     }
     public static void start() throws IOException {
         File ticketFile = new File(ticketsSrc); // create object File
@@ -58,11 +58,11 @@ public class Action {
                 Calendar calendar = Calendar.getInstance(); // create instance calendar
                 int currentYear = calendar.get(Calendar.YEAR);  // get current date like a int
 
-                //  TODO : musi tu byc sprawdzenie czy rok jest wiekszy czy mniejszy
+                if(year >= currentYear){ // if year is bigger than current year
+                    Movie movie = new Movie(data, title);   // create object movie
+                    movies.add(movie);  //add movie to movies
 
-                Movie movie = new Movie(data, title);   // create object movie
-                movies.add(movie);  //add movie to movies
-
+                }
             }
             while (scannerTicket.hasNext()) {     // if scanner movie has next line in file
                 String titleTicket = scannerTicket.nextLine();  // get title of movie from ticket
@@ -133,8 +133,13 @@ public class Action {
         Action.listOfMovie(false); //use function listOfMovie
         System.out.println("write index of movie you want to see tickets");     //write instructors to user
         System.out.print(">>");
-        // TODO : musi tu byc idioto odpornosc v4
         int choice = scanner.nextInt();     //get choice from scanner
+
+        if( choice >= movies.size() || choice < 0){
+            System.out.println("this index of movie doesn't exist");
+            Action.WhatDo();
+        }
+
         Movie movie = movies.get(choice);       //get movie from listOfMovie
         for (int i = 0; i < movie.tickets.size(); i++) {  //print informatoin about ticket in movie
             Ticket ticket = movie.tickets.get(i);
@@ -143,6 +148,9 @@ public class Action {
             System.out.println("row "+ticket.row);
             System.out.println("seat "+ticket.seat);
             System.out.println("data "+ticket.data);
+        }
+        if(movie.tickets.isEmpty()){
+            System.out.println("zero tickets");
         }
         Action.WhatDo(); // come back to WhatDo
     }
@@ -166,10 +174,19 @@ public class Action {
     private static void deleteTicket() throws IOException {
         Action.listOfMovie(false);      //view information about movie
         System.out.println("write index of movie you want to delete ticket");       //view instruction to user
-        // TODO : musi tu byc idioto odpornosc v1
         System.out.print(">>");
         int choice = scanner.nextInt();     //get choice from scanner
+
+        if(choice > movies.size() || choice < 0){
+            System.out.println("this index of tickets doesn't exist");
+            Action.WhatDo();
+        }
+
         Movie movie = movies.get(choice);       //get movie from listOfMovie
+        if(movies.isEmpty()){
+            System.out.println("list of ticket is empty");
+            Action.WhatDo();
+        }
         for (int i = 0; i < movie.tickets.size(); i++) {    //print information about tickets
             Ticket ticket = movie.tickets.get(i);
             System.out.println("index "+i);
@@ -179,8 +196,12 @@ public class Action {
         }
         System.out.println("write index of ticket you want to delete");     //view instruction for user
         System.out.print(">>");
-        // TODO : musi tu byc idioto odpornosc v2
         choice = scanner.nextInt();     //get choice
+
+        if(choice > movie.tickets.size() || choice < 0){
+            System.out.println("this index of ticket doesn't exist");
+            Action.WhatDo();
+        }
         movie.tickets.remove(choice);       //remove ticket from movie
         System.out.println("ticket deleted");       //view information
         Action.WhatDo();        //come back to whatDo
@@ -189,8 +210,11 @@ public class Action {
         Action.listOfMovie(false);      // view all movie in ListOfMovie
         System.out.println("write index of movie you want to delete");      //view instruction for user
         System.out.print(">>");
-        // TODO : musi tu byc idioto odpornosc v3
         int choice = scanner.nextInt();     //get choice from scanner
+        if(choice > movies.size() || choice < 0){
+            System.out.println("this movie don't exist");
+            Action.WhatDo();
+        }
         movies.remove(choice);      //remove movie from movies
         System.out.println("movie deleted");    //view information to user
         Action.WhatDo();    //come back to WhatDo
@@ -216,6 +240,7 @@ public class Action {
         System.out.println("set seat beetwen 1-20" );  //view instruction to user
         System.out.print(">>");
         int seat = scanner.nextInt();    //get seat from scanner
+        // TODO : jak podam String, Char to wywala bład
         int[] seatAllowed = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}; // declare array of allowed numbers
         boolean isInArraySeat = false;  //set flag is In Array Seat false
         for (int j : seatAllowed) {
@@ -228,11 +253,6 @@ public class Action {
             System.out.println("invalid seat number");  //write information to user
             Action.WhatDo();    // come back to What Do
         }
-
-
-        //TODO : nie dziala sprawdzanie dnia
-        //TODO : nie dziala sprawdzanie miesiaca
-        //TODO : nie dziala sprawdzanie roku
         System.out.println("set data in pattern dd-MM-yyyy");  //view instruction to user
         System.out.print(">>");
         String data = scanner.next();    //get data from scanner
@@ -266,7 +286,7 @@ public class Action {
             System.out.println("too short data");    //view instruction to user
             Action.WhatDo();    //come back to what do
         }
-        if (!dayOkey && !monthOkey && !yearOkey){   //if something is wrong in date
+        if (dayOkey == false || monthOkey == false || yearOkey == false){   //if something is wrong in date
             System.out.println("invalid date"); //view instruction to user
             Action.WhatDo();    //come back to What Do
         }
@@ -294,6 +314,7 @@ public class Action {
         String data = scanner.next();  //get title from scanner
         // TODO : cos tu nie dziala pomiedzy scanner.next i nextLine powinno byc
         //  NextLine ale wypisuje wszystko na raz
+        // TODO :  trzeba dodac zeby sprawdzal date
         Movie movie = new Movie(data,title);    //create object movie
         movies.add(movie);      //add created movie to list Of movie
         System.out.println("movie added");      //view information to user
