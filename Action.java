@@ -1,3 +1,4 @@
+import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -239,12 +240,12 @@ public class Action {
 
         System.out.println("set seat beetwen 1-20" );  //view instruction to user
         System.out.print(">>");
-        int seat = scanner.nextInt();    //get seat from scanner
-        // TODO : jak podam String, Char to wywala bład
-        int[] seatAllowed = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}; // declare array of allowed numbers
+        String seatString = scanner.next();    //get seat from scanner
+        String[] seatAllowed = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}; // declare array of allowed numbers
+        int seat = 0;   //declare seat
         boolean isInArraySeat = false;  //set flag is In Array Seat false
-        for (int j : seatAllowed) {
-            if (seat == j) {    // if flag equal seat Allowed in position 'i'
+        for (String j : seatAllowed) {
+            if (seatString == j) {    // if flag equal seat Allowed in position 'i'
                 isInArraySeat = true;   //set flag is In Array Seat true
                 break;
             }
@@ -252,11 +253,48 @@ public class Action {
         if (!isInArraySeat){    // if is In Array Seat flag is false
             System.out.println("invalid seat number");  //write information to user
             Action.WhatDo();    // come back to What Do
+        }else{
+            seat = Integer.parseInt(seatString);    //parse seat String to seat int
         }
         System.out.println("set data in pattern dd-MM-yyyy");  //view instruction to user
         System.out.print(">>");
         String data = scanner.next();    //get data from scanner
+        if(checkDate(data)) {
 
+            System.out.println("write title of movie");  //view instruction to user
+            System.out.print(">>");
+            String title = scanner.next();    //get title of movie from scanner
+
+            for (Movie movie : movies) {    //search movie where title from scanner equals title from scanner
+                if (movie.title.equals(title)) {    //if title from movie equal title from user
+                    Ticket ticket = new Ticket(row, seat, data);    //create ticket
+                    movie.addTicket(ticket);    //add to movie
+                    System.out.println("ticket added");     //view information to user
+                    break;  //break loop
+                }
+            }
+        }
+        Action.WhatDo();    //come back to WhatDo
+    }
+    private static void addMovie() throws IOException {
+        System.out.println("set title ( '-' beetween words ) ");    //view instruction for user
+        System.out.print(">>");
+        String title = scanner.next();  //get title from scanner
+
+        System.out.println("seat data");    //view instruction for user
+        System.out.print(">>");
+        String data = scanner.next();  //get title from scanner
+
+        if(checkDate(data)){
+            Movie movie = new Movie(data,title);    //create object movie
+            movies.add(movie);      //add created movie to list Of movie
+            System.out.println("movie added");      //view information to user
+            Action.WhatDo();        //come back to WhatDo
+        }else{
+            Action.WhatDo();
+        }
+    }
+    private static boolean checkDate(@NotNull String data) throws IOException {
         boolean dayOkey = false;    // set flag as false
         boolean monthOkey = false;    // set flag as false
         boolean yearOkey = false;    // set flag as false
@@ -288,36 +326,18 @@ public class Action {
         }
         if (dayOkey == false || monthOkey == false || yearOkey == false){   //if something is wrong in date
             System.out.println("invalid date"); //view instruction to user
-            Action.WhatDo();    //come back to What Do
-        }
-        System.out.println("write title of movie");  //view instruction to user
-        System.out.print(">>");
-        String title = scanner.next();    //get title of movie from scanner
-
-        for (Movie movie : movies) {    //search movie where title from scanner equals title from scanner
-            if (movie.title.equals(title)) {    //if title from movie equal title from user
-                Ticket ticket = new Ticket(row, seat, data);    //create ticket
-                movie.addTicket(ticket);    //add to movie
-                System.out.println("ticket added");     //view information to user
-                break;  //break loop
+            if(dayOkey == false){
+                System.out.println("invalid day");
             }
+            if(monthOkey == false){
+                System.out.println("invalid month");
+            }
+            if(yearOkey == false){
+                System.out.println("invalid year");
+            }
+            return false;
+        }else{
+            return true;
         }
-        Action.WhatDo();    //come back to WhatDo
-    }
-    private static void addMovie() throws IOException {
-        System.out.println("set title");    //view instruction for user
-        System.out.print(">>");
-        String title = scanner.next();  //get title from scanner
-
-        System.out.println("seat data");    //view instruction for user
-        System.out.print(">>");
-        String data = scanner.next();  //get title from scanner
-        // TODO : cos tu nie dziala pomiedzy scanner.next i nextLine powinno byc
-        //  NextLine ale wypisuje wszystko na raz
-        // TODO :  trzeba dodac zeby sprawdzal date
-        Movie movie = new Movie(data,title);    //create object movie
-        movies.add(movie);      //add created movie to list Of movie
-        System.out.println("movie added");      //view information to user
-        Action.WhatDo();        //come back to WhatDo
     }
 }
